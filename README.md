@@ -63,7 +63,7 @@ MISO(SPI Bus Master Input/Slave Output) SPI总线主机输入/从机输出
 |      CRC Calculation       | Disabled |
 |      NSS Signal Type       | Software |
 
-参考图3, 在右边栏将PB13 PB14 PB15分别设置为SPI2_SCK SPI2_MISO SPI2_MOSI, 将PB12设置为GPIO_Output. 点击Generate Code. 进入Src\main.c, 删除main函数, 进入Src\stm32f4xx_it.c, 删除USART3_IRQHandler函数.
+在右边栏将PB13 PB14 PB15分别设置为SPI2_SCK SPI2_MISO SPI2_MOSI, 将PB12设置为GPIO_Output. 点击Generate Code. 进入Src\main.c, 删除main函数, 进入Src\stm32f4xx_it.c, 删除USART3_IRQHandler函数.
 
 ### **ioc配置解读**
 
