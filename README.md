@@ -1,5 +1,28 @@
 # 基于Robomaster开发板C型与ADXL375三轴加速度传感器的四线式SPI通信说明手册
 
+目录
+* [1.SPI通信原理(以ADXL375, 四线式为例)](#1spi通信原理以adxl375-四线式为例)
+  * [CS](#cs)
+  * [CLK](#clk)
+  * [MOSI与MISO](#mosi与miso)
+    * [MISO时序](#miso时序)
+    * [MOSI时序](#mosi时序)
+* [2.硬件连接与ioc文件配置](#2硬件连接与ioc文件配置)
+    * [硬件连接](#硬件连接)
+    * [ioc文件配置](#ioc文件配置)
+    * [ioc配置解读](#ioc配置解读)
+    * [为什么要使用软件来控制CS引脚?](#为什么要使用软件来控制cs引脚)
+* [3.ADXL375.c程序解读](#3adxl375c程序解读adxl375h库文件解读略)
+    * [`adxl_write (uint8_t address, uint8_t value)`](#adxl_write-uint8_t-address-uint8_t-value)
+    * [`adxl_read (uint8_t address)`](#adxl_read-uint8_t-address)
+    * [`adxl_init ()`](#adxl_init-)
+    * [`adxl_Handle()`](#adxl_handle)
+* [4.使用普源MSO5000测试](#4使用普源mso5000测试)
+    * [何为"较为纯净"?](#何为较为纯净)
+    * [正确时序](#正确时序)
+    * [MSO5000的解码功能](#mso5000的解码功能仅作简单介绍)
+
+
 ## 1.SPI通信原理(以ADXL375, 四线式为例)
 
 四线式SPI拥有四条信号线:CS CLK/SCL/SCK/SCLK MOSI/SDO MISO/SDI(注:本文档与RoboMaster开发板 C 型用户手册中使用CS CLK MOSI MISO命名方法, ADXL375使用手册中使用CS SCLK SDO SDI命名方法). ADXL375时序图如下:
@@ -29,7 +52,7 @@ MISO(SPI Bus Master Input/Slave Output) SPI总线主机输入/从机输出
 
 当传感器接受到MISO数据后会进行相应操作. 当第一位(R/W位)为低电平(0)时, 进行写操作: 对MISO中规定的寄存器地址(ADDRESS BITS)写入MISO中规定的数据(DATA BITS)(如图25).
 
-#### **MOSI**
+#### **MOSI时序**
 
 当第一位(R/W位)为高电平(1)时进行读操作. 进行读操作时, 主机向传感器发送寄存器地址(ADDRESS BITS)后停用MISO, 启用MOSI(如图26). 传感器会通过MOSI线向主机传输MISO中规定的地址(ADDRESS BITS)对应的寄存器的值.
 
