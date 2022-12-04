@@ -85,7 +85,7 @@ MISO(SPI Bus Master Input/Slave Output) SPI总线主机输入/从机输出
 
 Software NSS即使用简单的`HAL_GPIO_Writepin()`函数控制CS引脚, 因此可以作为主机连接多个外设(只需将要通信的外设的CS置低, 其他外设的CS置高即可).
 
-Hardware NSS的作用在于实现自身主机和从机模式的切换. 也就是说: 在一个多SPI系统中, STM32 SPI通过NSS检测, 一旦发现系统中无NSS低信号, 自己就输出低,  从而成为主机; 当系统中有NSS低信号时(即已经有其它SPI宣布为主机), 自己就配置为从机. 因此, Hardware NSS并不是望文生义的"作为主机自动配置外设CS的高低电平".
+Hardware NSS仍有许多bug(可以去各种论坛翻翻看), 何况Software NSS使用起来非常方便, 因此在大多数场景下不建议使用Hardware NSS(RoboMaster开发板C型嵌入式软件教程文档中也是用Software NSS来控制CS).
 
 ## 3.ADXL375.c程序解读(ADXL375.h库文件解读略)
 
