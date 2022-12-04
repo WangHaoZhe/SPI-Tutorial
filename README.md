@@ -63,7 +63,7 @@ MISO(SPI Bus Master Input/Slave Output) SPI总线主机输入/从机输出
 |      CRC Calculation       | Disabled |
 |      NSS Signal Type       | Software |
 
-在右边栏将PB13 PB14 PB15分别设置为SPI2_SCK SPI2_MISO SPI2_MOSI, 将PB12设置为GPIO_Output. 点击Generate Code. 进入Src\main.c, 删除main函数, 进入Src\stm32f4xx_it.c, 删除USART3_IRQHandler函数.
+在右边栏将PB13 PB14 PB15分别设置为SPI2_SCK SPI2_MISO SPI2_MOSI, 将PB12设置为GPIO_Output. 点击Generate Code. 进入Src\main.c, 删除`main()`函数, 进入Src\stm32f4xx_it.c, 删除`USART3_IRQHandler()`函数.
 
 ### **ioc配置解读**
 
@@ -81,9 +81,15 @@ MISO(SPI Bus Master Input/Slave Output) SPI总线主机输入/从机输出
 
 *NSS Signal Type*-Software: 使用GPIO_Output来控制CS位, 故上方Hardware NSS Signal为Disable, 此处为Software
 
+### **为什么要使用软件来控制CS引脚?**
+
+Software NSS即使用简单的HAL_GPIO_Writepin()函数控制CS引脚, 因此可以作为主机连接多个外设(只需将要通信的外设的CS置低, 其他外设的CS置高即可).
+
+Hardware NSS的作用在于实现自身主机和从机模式的切换. 也就是说: 在一个多SPI系统中, STM32 SPI通过NSS检测, 一旦发现系统中无NSS低信号, 自己就输出低,  从而成为主机; 当系统中有NSS低信号时(即已经有其它SPI宣布为主机), 自己就配置为从机. 因此, Hardware NSS并不是望文生义的"作为主机自动配置外设CS的高低电平".
+
 ## 3.ADXL375.c程序解读(ADXL375.h库文件解读略)
 
-由于在ioc中已经配置完成SPI2, 因此不需要手动定义引脚号, 仅需要利用`&hspi`指定SPI即可. 例程中已将部分值改为宏定义, 可对照库文件查阅.
+*例程中已将部分值改为宏定义, 可对照库文件查阅.*
 
 ### **`adxl_write (uint8_t address, uint8_t value)`**
 
@@ -110,7 +116,7 @@ HAL_GPIO_WritePin (SPI2_CS_PORT, SPI2_CS_PIN, GPIO_PIN_RESET);
 HAL_SPI_Transmit (&hspi2, data, 2, 100);
 ```
 
-向spi传输数据. `&hspi2`代表SPI2(即用户SPI. C板已将SPI1分配给板载BMI088), `data`为要传输的数据, `2`为数据大小(2字节), `100`为超时, 单位为ns.
+向spi传输数据. `&hspi2`代表SPI2(即用户SPI. C板已将SPI1分配给板载BMI088), `data`为要传输的数据, `2`为数据大小(2字节), `100`为超时, 单位为ms.
 
 ```c
 HAL_GPIO_WritePin (SPI2_CS_PORT, SPI2_CS_PIN, GPIO_PIN_SET);
@@ -174,7 +180,7 @@ adxl_write (0x2d, 0x08);
 adxl_read (0x32);
 ```
 
-读取0x32~0x37(即三轴加速度数据)共六个寄存器, 存储到data_rec中.
+读取0x32~0x37(即三轴加速度数据)共六个寄存器, 存储到缓存数组data_rec中.
 
 ```c
 x = (int16_t)((data_rec[1]<<8)|data_rec[0]);
@@ -192,7 +198,7 @@ zg = z*.049;
 
 乘以比例因子, 将单位转化为g(重力加速度).
 
-传感器输出数据以LSB表示, 需要乘以比例因子以转化为以重力加速度g为单位的加速度值. 比例因子(灵敏度的倒数)为ADXL375使用手册第3页-技术规格中所示的49mg/LSB的典型值.
+传感器输出数据以LSB表示, 需要乘以比例因子以转化为以重力加速度g为单位的加速度值. 此处比例因子0.049(灵敏度的倒数)为ADXL375使用手册第3页-技术规格中所示的49mg/LSB的典型值.
 
 事实上, 比例因子并不固定. 不同的ADXL375在不同温度下比例因子不同(见ADXL375使用手册第8页图10~图15).
 
