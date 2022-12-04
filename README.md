@@ -92,7 +92,7 @@ MISO(SPI Bus Master Input/Slave Output) SPI总线主机输入/从机输出
 
 *Data Size*-8 Bits: 数据长度. ADXL375使用手册第21页:"ADXL375中的所有寄存器长度均为8位"
 
-*First Bit MSB*-First: 左对齐(与程序中对应, 见程序解读部分)
+*First Bit*-MSB First: 左对齐(与程序中对应, 见程序解读部分)
 
 *Prescaler (for Baud Rate)*-64: 总线分频值. ADXL375使用手册第21页:"100pF最大负载时的最大SPI时钟为5 MHz", 故需要设置分频器使Baud Rate小于5MBits/s. 对于C板所用的STM32F407, 分频器大于16时即可满足要求. 此处设置为64
 
@@ -102,7 +102,7 @@ MISO(SPI Bus Master Input/Slave Output) SPI总线主机输入/从机输出
 
 *CRC Calculation*-Disabled: 不需要CRC校验计算功能
 
-*NSS Signal Type*-Software: 使用`HAL_GPIO_Writepin()`函数来控制CS位, 故上方Hardware NSS Signal为Disable, 此处为Software
+*NSS Signal Type*-Software: 我们将使用`HAL_GPIO_Writepin()`函数来控制CS位, 故上方Hardware NSS Signal设为Disable, 此处设为Software
 
 ### **为什么要使用软件来控制CS引脚?**
 
@@ -127,7 +127,7 @@ data[0] = address|0x40;
 
 ***注意: 即使读或写单字节仍需配置为多字节模式, 因为需要将寄存器地址+数据打包传输, 即如果写入数据为n字节, 共传输需要n+1个字节, 显然n+1>1.***  
 
-对address二进制下的每一位与0x40(二进制下01000000)取或运算(|), 即将address二进制下第二位置为1. 如address=0x32: 0x32在二进制下为00110010, 与0x40或运算后为01110010. 根据ADXL375使用手册第15页-SPI模式与第16页时序图, 设置位于第一个字节传输R/W位后的多字节位(MB位)为1则开启多字节传输.
+根据时序图, 第一字节前两位为R/W位与MB位, 后六位(A5~A0)为地址位. 该行代码对address二进制下的每一位与0x40(二进制下01000000)取或运算(|), 即将address二进制下第二位置为1. 如address=0x32: 0x32在二进制下为00110010, 与0x40或运算后为01110010. 根据ADXL375使用手册第15页-SPI模式与第16页时序图, 设置位于第一个字节传输R/W位后的多字节位(MB位)为1则开启多字节传输.
 
 ```c
 HAL_GPIO_WritePin (SPI2_CS_PORT, SPI2_CS_PIN, GPIO_PIN_RESET);
