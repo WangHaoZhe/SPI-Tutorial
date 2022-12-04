@@ -4,13 +4,13 @@
 
 四线式SPI拥有四条信号线:CS CLK/SCL/SCK/SCLK MOSI/SDO MISO/SDI(注:本文档与RoboMaster开发板 C 型用户手册中使用CS CLK MOSI MISO命名方法, ADXL375使用手册中使用CS SCLK SDO SDI命名方法). ADXL375时序图如下:
 
-![1.png](./res/1.png)
+![1.png](https://github.com/WangHaoZhe/SPI-Tutorial/blob/main/res/1.png)
 
 ### **CS**
 
 CS为片选信号, 根据ADXL375使用手册(第15页-SPI模式), 当CS为高电平时开启I2C通信, 禁用SPI通信; 当CS为低电平时开启SPI通信, 禁用I2C通信.  
 
-值得注意的是, 若在SPI通信停止时(即CS置于高电平), 传输给传感器的信号(MISO信号)恰好为有效的I2C信号, 则传感器将错误解读. 解决方法为添加逻辑门, 详见技术手册(第15页-防止总线流量错误).
+***注意: 如果主机使用SPI/I2C连接到多个外设(包括但不限于传感器)时, 若在对ADXL375的SPI通信停止时(即CS置于高电平), 总线上传输给其他外设的信号(MISO信号)恰好对于ADXL375为有效的I2C信号, 则ADXL375将错误解读. 解决方法为添加一个PMOS, 只有当CS为低电平时使MISO信号线导通. PMOS的阈值电压应符合ADXL375使用手册中规定的信号线电压值的范围(第17页-表11,12).***
 
 ### **CLK**
 
@@ -39,13 +39,13 @@ MISO(SPI Bus Master Input/Slave Output) SPI总线主机输入/从机输出
 
 查阅"RoboMaster开发板 C 型用户手册"第10页(PDF第12页)有下图:
 
-![2.png](./res/2.png)
+![2.png](https://github.com/WangHaoZhe/SPI-Tutorial/blob/main/res/2.png)
 
 连接传感器供电与通信线(注意MOSI连接SDI, MISO连接SDO)
 
 查阅"RoBoMaster开发板 C 型原理图"第3页有下图:
 
-![3.png](./res/3.png)
+![3.png](https://github.com/WangHaoZhe/SPI-Tutorial/blob/main/res/3.png)
 
 可见, SPI2四条信号线连接到STM32的引脚号, 下方ioc文件配置中设置的四个引脚号正来源于此.
 
@@ -130,7 +130,7 @@ address |= 0x40;
 设置为多字节读取模式.
 0x80二进制为10000000, 即将R/W位置高, 根据ADXL375使用手册第15页-SPI模式与第16页读取与写入时序图, R/W位置高为读取模式, 置低为写入模式. 0x40开启多字节传输.
 
-![5.png](./res/5.png)
+![5.png](https://github.com/WangHaoZhe/SPI-Tutorial/blob/main/res/5.png)
 
 ```c
 HAL_SPI_Transmit (&hspi2, &address, 1, 100);
@@ -144,7 +144,7 @@ HAL_SPI_Receive (&hspi2, data_rec, 6, 100);
 
 自传入的地址所指向的寄存器开始, 读取后六个寄存器(包含传入的地址所指向的寄存器)的数据, 存储到data_rec数组中. 以`address=0x32`为例, 将读取0x32~0x37(即三轴加速度数据)共六个寄存器, 存储到data_rec中.
 
-![7.png](./res/7.png)
+![7.png](https://github.com/WangHaoZhe/SPI-Tutorial/blob/main/res/7.png)
 
 ### **`adxl_init ()`**
 
@@ -192,17 +192,21 @@ zg = z*.049;
 
 乘以比例因子, 将单位转化为g(重力加速度).
 
-传感器输出数据以LSB表示, 需要乘以比例因子以转化为以重力加速度g为单位的加速度值. 比例因子为ADXL375使用手册第3页-技术规格中所示的49mg/LSB的典型值.
+传感器输出数据以LSB表示, 需要乘以比例因子以转化为以重力加速度g为单位的加速度值. 比例因子(灵敏度的倒数)为ADXL375使用手册第3页-技术规格中所示的49mg/LSB的典型值.
+
+事实上, 比例因子并不固定. 不同的ADXL375在不同温度下比例因子不同(见ADXL375使用手册第8页图10~图15).
+
+![8.png](https://github.com/WangHaoZhe/SPI-Tutorial/blob/main/res/8.png)
 
 ## 4.使用普源MSO5000测试
 
 将普源MSO5000四个探头连接SPI四个引脚. 本文档按如下线序连接:
-|示波器通道|SPI信号线|
-|-----|--------|
-|CH1|    CS  |
-|CH2|  CLK  |
-|CH3| MISO |
-|CH4| MOSI |
+|      示波器通道       |SPI信号线|
+|----------------------|--------|
+|$\color{YELLOW}{CH1}$ |   CS   |
+|$\color{#33CCFF}{CH2}$|   CLK  |
+|$\color{PURPLE}{CH3}$ |  MISO  |
+|$\color{BLUE}{CH4}$   |  MOSI  |
 
 按下Menu按钮, 设置触发类型为边沿触发, 信源为CS信号的通道, 边沿类型为下降沿(因为CS下降代表SPI开始通信).
 
@@ -212,7 +216,7 @@ zg = z*.049;
 
 ADXL375使用手册规定了信号线电压值的范围(第17页-表11,12)
 
-![4.png](./res/4.png)
+![4.png](https://github.com/WangHaoZhe/SPI-Tutorial/blob/main/res/4.png)
 
 示波器所呈现的方波信号应符合该范围(其中数字输入为MOSI, 数字输出MISO).
 其中$V_{DD I/O}=3.3V$.  
@@ -227,4 +231,4 @@ ADXL375使用手册规定了信号线电压值的范围(第17页-表11,12)
 MSO5000内置了解码功能, 可以直接分析SPI信号.  
 按下Decode, 选择解码1, 设置总线类型为SPI. 进入模式, 调整模式为片选, 片选信号为CS线对应的探头通道. 阈值设置为峰峰值的一半(1.5V). 按下Back以返回. 进入信源设置, 将CLK MISO MOSI均选为对应的通道, 阈值均为峰峰值的一半(1.5V). 返回并进入显示, 格式按偏好设置, 此处设为二进制. 返回并进入设置, 位序设为MSB, 宽度为8. 返回并打开总线开关, 可以看到示波器屏幕上显示出解码结果. 可以将程序与示波器结果对比. 如程序中`adxl_read (0x32);`将R/W位设为1, MB位设为1, 32二进制为00110010, 则MOSI第一字节应为11110010. 对照示波器解码结果查看, 结果正确, 如图:
 
-![10.png](./res/10.png)
+![10.png](https://github.com/WangHaoZhe/SPI-Tutorial/blob/main/res/10.png)
