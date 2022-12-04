@@ -209,9 +209,9 @@ zg = z*.049;
 将普源MSO5000四个探头连接SPI四个引脚. 本文档按如下线序连接:
 |      示波器通道       |SPI信号线|
 |----------------------|--------|
-|$\color{YELLOW}{CH1}$ |   CS   |
-|$\color{#33CCFF}{CH2}$|   CLK  |
-|$\color{PURPLE}{CH3}$ |  MISO  |
+|$\color{#FFD700}{CH1}$|   CS   |
+|$\color{#33CCFF}{CH2}$|  CLK   |
+|$\color{#FF00FF}{CH3}$|  MISO  |
 |$\color{BLUE}{CH4}$   |  MOSI  |
 
 按下Menu按钮, 设置触发类型为边沿触发, 信源为CS信号的通道, 边沿类型为下降沿(因为CS下降代表SPI开始通信).
