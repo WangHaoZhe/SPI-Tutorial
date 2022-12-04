@@ -1,12 +1,12 @@
 # 基于Robomaster开发板C型与ADXL375三轴加速度传感器的四线式SPI通信说明手册
 
-目录
+#目录
 * [1.SPI通信原理(以ADXL375, 四线式为例)](#1spi通信原理以adxl375-四线式为例)
   * [CS](#cs)
   * [CLK](#clk)
   * [MOSI与MISO](#mosi与miso)
-    * [MISO时序](#miso时序)
     * [MOSI时序](#mosi时序)
+    * [MISO时序](#miso时序)
 * [2.硬件连接与ioc文件配置](#2硬件连接与ioc文件配置)
     * [硬件连接](#硬件连接)
     * [ioc文件配置](#ioc文件配置)
@@ -21,7 +21,6 @@
     * [何为"较为纯净"?](#何为较为纯净)
     * [正确时序](#正确时序)
     * [MSO5000的解码功能](#mso5000的解码功能仅作简单介绍)
-
 
 ## 1.SPI通信原理(以ADXL375, 四线式为例)
 
@@ -46,15 +45,15 @@ MISO(SPI Bus Master Input/Slave Output) SPI总线主机输入/从机输出
 
 可见其已经规定了两根信号线信号发送的方向, 故不需要像RX/TX一样交叉连线(MISO-MISO, MOSI-MOSI, 但如果命名方式不是MISO/MOSI命名, 需要注意, 如ADXL375. 详见硬件连接部分).
 
-#### **MISO时序**
-
-如时序图所示, 当MISO第一位(R/W位)为高电平(1)时, 进行读操作; 为低电平(0)时进行写操作. 若要读或写多个字节, 需要将第二位(MB位)置为高电平. 而后传输寄存器地址(ADDRESS BITS)与数据(DATA BITS).
-
-当传感器接受到MISO数据后会进行相应操作. 当第一位(R/W位)为低电平(0)时, 进行写操作: 对MISO中规定的寄存器地址(ADDRESS BITS)写入MISO中规定的数据(DATA BITS)(如图25).
-
 #### **MOSI时序**
 
-当第一位(R/W位)为高电平(1)时进行读操作. 进行读操作时, 主机向传感器发送寄存器地址(ADDRESS BITS)后停用MISO, 启用MOSI(如图26). 传感器会通过MOSI线向主机传输MISO中规定的地址(ADDRESS BITS)对应的寄存器的值.
+如时序图所示, 当MOSI(SDI)第一位(R/W位)为高电平(1)时, 进行读操作; 为低电平(0)时进行写操作. 若要读或写多个字节, 需要将第二位(MB位)置为高电平. 而后传输寄存器地址(ADDRESS BITS)与数据(DATA BITS).
+
+当传感器接受到MOSI数据后会进行相应操作. 当第一位(R/W位)为低电平(0)时, 进行写操作: 对MISO中规定的寄存器地址(ADDRESS BITS)写入MOSI中规定的数据(DATA BITS)(如写入时序图的SDI时序).
+
+#### **MISO时序**
+
+当第一位(R/W位)为高电平(1)时进行读操作. 进行读操作时, 主机向传感器发送寄存器地址(ADDRESS BITS)后停用MOSI, 启用MISO(如读取时序图中大括号所标出的ADDRESS BITS和DATA BITS分别来自SDI(MOSI)与SDO(MISO)). 传感器会通过MISO线向主机传输MOSI中规定的地址(ADDRESS BITS)对应的寄存器的值.
 
 ## 2.硬件连接与ioc文件配置
 
