@@ -31,9 +31,7 @@ void adxl_read (uint8_t address)
 void adxl_init (void)
 {
     adxl_write (DATA_FORMAT, 0x0f);  // data_format
-    adxl_write (POWER_CTL, 0x00);  // reset all bits
     adxl_write (POWER_CTL, 0x08);  // power_cntl measure and wake up 8hz
-    //adxl_write (0x2c, 0x06); // output speed
 }
 
 int16_t x,y,z;
