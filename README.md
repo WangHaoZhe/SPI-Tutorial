@@ -107,7 +107,7 @@ MISO(SPI Bus Master Input/Slave Output) SPI总线主机输入/从机输出
 
 Software NSS即使用简单的`HAL_GPIO_Writepin()`函数控制CS引脚, 因此可以作为主机连接多个外设(只需将要通信的外设的CS置低, 其他外设的CS置高即可).
 
-Hardware NSS仍有许多bug(可以去各种论坛翻翻看), 何况Software NSS使用起来非常方便, 因此在大多数场景下不建议使用Hardware NSS(RoboMaster开发板C型嵌入式软件教程文档中也是用Software NSS来控制CS).
+Hardware NSS仍有许多bug(可以去各种论坛翻翻看), 并且一路SPI仅允许连接一个设备(因为Hardware NSS只能控制单个指定的CS引脚). 何况Software NSS使用起来非常方便, 因此在大多数场景下不建议使用Hardware NSS(RoboMaster开发板C型嵌入式软件教程文档中也用Software NSS来控制CS正是由于BMI088的陀螺仪与加速度计为两个独立的设备, 需要两个CS引脚进行控制).
 
 ## 3.ADXL375.c程序解读(ADXL375.h库文件解读略)
 
